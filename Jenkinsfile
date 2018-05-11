@@ -4,7 +4,7 @@ pipeline {
 
     tools {
         maven 'LocalMaven'
-        jdk 'jdk10'
+        jdk 'LocalJDK'
     }
 
     stages{
