@@ -6,7 +6,17 @@ pipeline {
         maven 'LocalMaven'
         jdk 'LocalJDK'
     }
-    
+
+    parameters {
+         string(name: 'tomcat_dev', defaultValue: '34.212.125.19', description: 'Staging Server')
+         string(name: 'tomcat_prod', defaultValue: '54.218.72.30', description: 'Production Server')
+    }
+
+    triggers {
+         pollSCM('* * * * *')
+    }
+
+
     stages{
         stage('Build'){
             
@@ -20,6 +30,24 @@ pipeline {
                 }
             }
         }
+
+        stage ('Deployments'){
+            parallel{
+                stage ('Deploy to Staging'){
+                    steps {
+                        sh "scp -i /h/Usil/tomcat-demo.pem **/target/*.war ec2-user@${params.tomcat_dev}:/var/lib/tomcat7/webapps"
+                    }
+                }
+
+                stage ("Deploy to Production"){
+                    steps {
+                        sh "scp -i /h/Usil/tomcat-demo.pem **/target/*.war ec2-user@${params.tomcat_prod}:/var/lib/tomcat7/webapps"
+                    }
+                }
+            }
+        }
+
+
 
     }
 }
